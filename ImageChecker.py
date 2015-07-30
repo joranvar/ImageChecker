@@ -2,6 +2,8 @@ from PIL import Image
 import shutil
 import os
 import tkinter as tk
+import queue
+import threading
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
@@ -10,7 +12,7 @@ from tkinter import messagebox
 class GUI:
 
     def __init__(self):
-        self.dirname = 'C:\\'
+        self.dirname = 'C:/'
         self.tk = tk.Tk()
         self.tk.title('Image Checker')
         self.tk.frame = tk.Frame(self.tk)
@@ -37,10 +39,23 @@ class GUI:
 
     def processFiles(self):
         self.dirname = self.tk.text.get(1.0, tk.END).rstrip('\n')
+        self.queue = queue.Queue()
+        ProcessFiles(self.queue, self.dirname, self.tk.progressbar).start()
+
+
+class ProcessFiles(threading.Thread):
+
+    def __init__(self, queue, dirname, progressbar):
+        threading.Thread.__init__(self)
+        self.queue = queue
+        self.dirname = dirname
+        self.progressbar = progressbar
+
+    def run(self):
         numberofcorruptfiles = 0
         numberoffiles = 0
         numberofimages = 0
-        self.tk.progressbar.start()
+        self.progressbar.start()
         corruptPath = os.path.join(self.dirname, 'corrupt')
         if not os.path.exists(corruptPath):
             os.makedirs(corruptPath)
@@ -56,9 +71,12 @@ class GUI:
                         fp.close()
                     except Exception:
                         fp.close()
-                        shutil.move(fullname, corruptPath)
+                        try:
+                            shutil.move(fullname, corruptPath)
+                        except Exception:
+                            pass
                         numberofcorruptfiles += 1
-        self.tk.progressbar.stop()
+        self.progressbar.stop()
         messagebox.showinfo("Done!", "%(numberoffiles)s files found.\n%(numberofimages)s images processed.\n%(numberofcorruptfiles)s corrupt images found." % {
                             "numberoffiles": numberoffiles, "numberofimages": numberofimages, "numberofcorruptfiles": numberofcorruptfiles})
 
