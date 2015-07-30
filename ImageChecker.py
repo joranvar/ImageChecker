@@ -36,6 +36,7 @@ class GUI:
         self.tk.text.insert(tk.END, self.dirname)
 
     def processFiles(self):
+        self.dirname = self.tk.text.get(1.0, tk.END).rstrip('\n')
         numberofcorruptfiles = 0
         numberoffiles = 0
         numberofimages = 0
