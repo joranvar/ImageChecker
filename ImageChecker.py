@@ -60,8 +60,8 @@ class ProcessFiles(threading.Thread):
         if not os.path.exists(corruptPath):
             os.makedirs(corruptPath)
         for dirpath, dirnames, files in os.walk(self.dirname):
+            numberoffiles += len(files)
             for file in files:
-                numberoffiles += 1
                 if file.lower().endswith(('.tif', '.jpg', '.jpeg', '.tiff', '.gif')):
                     numberofimages += 1
                     try:
