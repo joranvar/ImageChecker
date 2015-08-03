@@ -66,11 +66,9 @@ class ProcessFiles(threading.Thread):
                     numberofimages += 1
                     try:
                         fullname = os.path.join(dirpath, file)
-                        fp = open(fullname, "rb")
-                        Image.open(fp)
-                        fp.close()
+                        with open(fullname, "rb") as fp:
+                            Image.open(fp)
                     except Exception:
-                        fp.close()
                         try:
                             shutil.move(fullname, corruptPath)
                         except Exception:
